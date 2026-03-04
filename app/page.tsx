@@ -1,8 +1,8 @@
-export const dynamic = 'force-dynamic' // 常に最新のデータを取得するように強制する
 import { supabase } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
 import TodoCheck from '@/components/TodoCheck';
 
+export const dynamic = 'force-dynamic' // 常に最新のデータを取得するように強制する
 export default async function TodoPage() {
   //1.データベースからタスク一覧を取得
   const { data: todos } = await supabase
