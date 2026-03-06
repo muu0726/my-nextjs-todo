@@ -20,8 +20,9 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) alert(error.message);
     else {
-      router.push('/');
-      router.refresh();
+    //   router.push('/');
+    //   router.refresh();
+        window.location.href = '/';
     }
   };
 
