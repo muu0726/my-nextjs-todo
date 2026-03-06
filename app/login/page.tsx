@@ -17,12 +17,16 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     if (!email || !password) return alert('メールとパスワードを入力してください');
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) alert(error.message);
-    else {
-    //   router.push('/');
-    //   router.refresh();
-        window.location.href = '/';
+    
+    // ログイン実行
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    if (error) {
+      alert("ログインエラー: " + error.message);
+    } else if (data.session) {
+      // ログイン成功後、一旦リフレッシュしてからトップへ飛ばす
+      await supabase.auth.setSession(data.session); // セッションを明示的にセット
+      window.location.replace('/'); // 履歴を残さずトップへ移動
     }
   };
 

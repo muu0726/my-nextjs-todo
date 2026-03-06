@@ -65,5 +65,14 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/'],
+  matcher: [
+    /*
+     * 次のパス以外のすべてのリクエストパスにマッチさせる:
+     * - _next/static (静的ファイル)
+     * - _next/image (画像最適化ファイル)
+     * - favicon.ico (ファビコンファイル)
+     * - login (ログインページ自体)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|login).*)',
+  ],
 }
