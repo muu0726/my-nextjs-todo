@@ -18,15 +18,21 @@ export default function LoginPage() {
   const handleLogin = async () => {
     if (!email || !password) return alert('メールとパスワードを入力してください');
     
-    // ログイン実行
+    // 1. ログイン実行
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     
     if (error) {
       alert("ログインエラー: " + error.message);
-    } else if (data.session) {
-      // ログイン成功後、一旦リフレッシュしてからトップへ飛ばす
-      await supabase.auth.setSession(data.session); // セッションを明示的にセット
-      window.location.replace('/'); // 履歴を残さずトップへ移動
+      return;
+    }
+
+    if (data.session) {
+      // 2. セッションをブラウザのクッキーに確実に書き込む時間を稼ぐ
+      await supabase.auth.setSession(data.session);
+      
+      // 3. 履歴を残さず、アプリ全体を強制的に再読み込みしてトップへ飛ばす
+      // これにより Middleware が新しいログイン情報を確実にキャッチします
+      window.location.assign('/');
     }
   };
 
