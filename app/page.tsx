@@ -81,6 +81,22 @@ export default async function TodoPage() {
     redirect('/login')
   }
 
+  async function toggleTodo(id:number,isCompleted:boolean) {
+    'use server'
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {cookies:{get(name){return cookieStore.get(name)?.value}}}
+    )
+    await supabase
+      .from('todos')
+      .update({is_completed:!isCompleted})
+      .eq('id',id)
+    
+    revalidatePath('/')
+  }
+
   return (
     <main className="max-w-md mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg text-black">
       <div className="flex justify-between items-center mb-6">
@@ -116,7 +132,7 @@ export default async function TodoPage() {
                 id={todo.id} 
                 isCompleted={todo.is_completed} 
                 // toggleActionは別途定義が必要ですが、まずは表示を確認
-                toggleAction={async () => { 'use server'; }} 
+                toggleAction={toggleTodo} 
               />
               <span className={todo.is_completed ? 'line-through text-gray-400' : 'text-gray-800'}>
                 {todo.title}
