@@ -1,37 +1,28 @@
 'use client';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const router = useRouter();
 
   const handleSignUp = async () => {
-    if (!email || !password) return alert('メールとパスワードを入力してください');
+    if (!email || !password) return alert('入力してください');
     const { error } = await supabase.auth.signUp({ email, password });
     if (error) alert(error.message);
     else alert('ユーザー登録に成功しました！');
   };
 
   const handleLogin = async () => {
-    if (!email || !password) return alert('メールとパスワードを入力してください');
+    if (!email || !password) return alert('入力してください');
     
-    // 1. ログイン実行
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     
     if (error) {
       alert("ログインエラー: " + error.message);
-      return;
-    }
-
-    if (data.session) {
-      // 2. セッションをブラウザのクッキーに確実に書き込む時間を稼ぐ
+    } else if (data.session) {
+      // セッションを確実にブラウザへセットし、強制的にトップページを読み込む
       await supabase.auth.setSession(data.session);
-      
-      // 3. 履歴を残さず、アプリ全体を強制的に再読み込みしてトップへ飛ばす
-      // これにより Middleware が新しいログイン情報を確実にキャッチします
       window.location.assign('/');
     }
   };
@@ -42,13 +33,13 @@ export default function LoginPage() {
       <div className="flex flex-col gap-4 w-80">
         <input 
           type="email" placeholder="メールアドレス" 
-          className="border-2 border-gray-500 p-3 rounded bg-white text-black focus:border-blue-500 outline-none"
+          className="border-2 border-gray-500 p-3 rounded bg-white text-black outline-none"
           onChange={(e) => setEmail(e.target.value)} 
           value={email}
         />
         <input 
           type="password" placeholder="パスワード" 
-          className="border-2 border-gray-500 p-3 rounded bg-white text-black focus:border-blue-500 outline-none"
+          className="border-2 border-gray-500 p-3 rounded bg-white text-black outline-none"
           onChange={(e) => setPassword(e.target.value)} 
           value={password}
         />
