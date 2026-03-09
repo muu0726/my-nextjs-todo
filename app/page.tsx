@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import TodoCheck from '@/components/TodoCheck'
+import Link from 'next/link';
 
 export default async function TodoPage() {
   const cookieStore = await cookies()
@@ -34,7 +35,7 @@ export default async function TodoPage() {
     .order('created_at', { ascending: false })
 
   // --- Server Actions ---
-  
+
   // タスク追加
   async function addTodo(formData: FormData) {
     'use server'
@@ -47,7 +48,7 @@ export default async function TodoPage() {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       { cookies: { get(name) { return cookieStore.get(name)?.value } } }
     )
-    
+
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       await supabase.from('todos').insert([{ title, user_id: user.id }])
@@ -81,26 +82,42 @@ export default async function TodoPage() {
     redirect('/login')
   }
 
-  async function toggleTodo(id:number,isCompleted:boolean) {
+  async function toggleTodo(id: number, isCompleted: boolean) {
     'use server'
     const cookieStore = await cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {cookies:{get(name){return cookieStore.get(name)?.value}}}
+      { cookies: { get(name) { return cookieStore.get(name)?.value } } }
     )
     await supabase
       .from('todos')
-      .update({is_completed:!isCompleted})
-      .eq('id',id)
-    
+      .update({ is_completed: !isCompleted })
+      .eq('id', id)
+
     revalidatePath('/')
   }
+
+
+
+  //プロフィール情報を取得
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username,full_name')
+    .eq('id', user?.id)
+    .single();
 
   return (
     <main className="max-w-md mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg text-black">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">My Todo App</h1>
+        <div>
+          <h1 className="text-2xl font-bold">My Todo App</h1>
+          {/* ユーザー名を表示 */}
+          <Link href="/profile" className="text-xs text-blue-500 hover:underline">
+            プロフィール編集はこちら
+          </Link>
+        </div>
+        <p className="text-sm text-gray-600">こんにちは,{profile?.full_name || 'ユーザー'}さん</p>
         <form action={handleLogout}>
           <button type="submit" className="text-sm bg-gray-100 hover:bg-gray-200 py-1 px-3 rounded">
             ログアウト
@@ -128,11 +145,11 @@ export default async function TodoPage() {
           <li key={todo.id} className="flex items-center justify-between p-2 border-b">
             <div className="flex items-center gap-3">
               {/* チェックボックス（クライアントコンポーネント） */}
-              <TodoCheck 
-                id={todo.id} 
-                isCompleted={todo.is_completed} 
+              <TodoCheck
+                id={todo.id}
+                isCompleted={todo.is_completed}
                 // toggleActionは別途定義が必要ですが、まずは表示を確認
-                toggleAction={toggleTodo} 
+                toggleAction={toggleTodo}
               />
               <span className={todo.is_completed ? 'line-through text-gray-400' : 'text-gray-800'}>
                 {todo.title}
