@@ -55,7 +55,9 @@ export default function ProfilePage() {
         } else {
             alert('プロフィールを更新しました');
             router.push('/');
-            router.refresh();
+            setTimeout(() => {
+                window.location.reload();
+            },100);
         }
         setLoading(false);
     }

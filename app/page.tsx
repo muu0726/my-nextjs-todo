@@ -6,8 +6,8 @@ import TodoCheck from '@/components/TodoCheck'
 import Link from 'next/link';
 
 export default async function TodoPage() {
-  const cookieStore = await cookies()
-
+ const dynamic = 'force-dynamic';
+  const cookieStore = await cookies();
   // Supabaseクライアントの作成
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
