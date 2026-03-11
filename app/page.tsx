@@ -5,8 +5,8 @@ import { redirect } from 'next/navigation'
 import TodoCheck from '@/components/TodoCheck'
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
 export default async function TodoPage() {
- const dynamic = 'force-dynamic';
   const cookieStore = await cookies();
   // Supabaseクライアントの作成
   const supabase = createServerClient(
